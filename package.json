@@ -4,6 +4,9 @@
   "description": "",
   "main": "index.js",
   "author": "",
+  "scripts": {
+    "start": "node server.js"
+  },
   "license": "ISC",
   "dependencies": {
     "ua-parser-js": "^0.7.24",
