@@ -13,7 +13,7 @@
 
 const parser = require('ua-parser-js');
 const { uniqueNamesGenerator, animals, colors } = require('unique-names-generator');
-const jwt = require('jsonwebtoken');
+// const jwt = require('jsonwebtoken');
 
 function checkAuth(jwtSecret) {
   return function(info, callback) => {
