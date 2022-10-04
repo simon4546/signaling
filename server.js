@@ -1,24 +1,56 @@
-var process = require('process')
+// var process = require('process')
 // Handle SIGINT
-process.on('SIGINT', () => {
-  console.info("SIGINT Received, exiting...")
-  process.exit(0)
-})
+// process.on('SIGINT', () => {
+//   console.info("SIGINT Received, exiting...")
+//   process.exit(0)
+// })
 
-// Handle SIGTERM
-process.on('SIGTERM', () => {
-  console.info("SIGTERM Received, exiting...")
-  process.exit(0)
-})
+// // Handle SIGTERM
+// process.on('SIGTERM', () => {
+//   console.info("SIGTERM Received, exiting...")
+//   process.exit(0)
+// })
 
 const parser = require('ua-parser-js');
 const { uniqueNamesGenerator, animals, colors } = require('unique-names-generator');
+const jwt = require('jsonwebtoken');
 
+function checkAuth(jwtSecret) {
+  return function(info, callback) => {
+    try {
+      let query = url.parse(info.req.url, true).query;
+      const token = query.user;
+//       const authorization = info.req.headers.authorization;
+//       if (!authorization) {
+//         throw new Error('Missing authorization header');
+//       }
+//       const [scheme, token] = authorization.split(' ');
+//       if (scheme !== 'Bearer') {
+//         throw new Error('Invalid scheme in authorization header, supported: Bearer');
+//       }
+      if (!token) {
+        throw new Error('Missing token in authorization header');
+      }
+      try {
+//         info.req.user = jwt.verify(token, jwtSecret);
+        info.req.user = token;
+        callback(true);
+      } catch (e) {
+        throw new Error('Invalid token in authorization header');
+      }
+    } catch (e) {
+      callback(false, 401, `Unauthorized - ${e.message}`);
+    }
+  };
+}
 class SnapdropServer {
 
     constructor(port) {
         const WebSocket = require('ws');
-        this._wss = new WebSocket.Server({ port: port });
+        this._wss = new WebSocket.Server({ 
+          port: port,
+          verifyClient:checkAuth("shared")
+        });
         this._wss.on('connection', (socket, request) => this._onConnection(new Peer(socket, request)));
         this._wss.on('headers', (headers, response) => this._onHeaders(headers, response));
 
