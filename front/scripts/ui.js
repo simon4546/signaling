@@ -73,21 +73,7 @@ class PeersUI {
 class PeerUI {
 
     html() {
-        return `
-            <label style="display:flex" title="">
-                <input type="file" multiple>
-                <x-icon shadow="1">
-                    <svg class="icon"><use xlink:href="#"/></svg>
-                </x-icon>
-                <div style="margin-left: 10px; display: flex; flex-direction: column;">
-                    <div class="name font-subheading"></div>
-                    <div class="device-name font-body2"></div>
-                    <div class="status font-body2"></div>
-                </div>
-                <div class="progress">
-                  <div class="progress-line"></div>
-                </div>
-            </label>`
+        return document.querySelector("#userItemTemplate").innerHTML;
     }
 
     constructor(peer) {
@@ -109,6 +95,13 @@ class PeerUI {
     }
 
     _bindListeners(el) {
+        el.querySelector('.choose-file-btn').addEventListener('click', e => {
+            // let parents = getParents(e.target, $$("#" + el.id));
+            el.querySelector('input').click();
+        });
+        el.querySelector('.send-message-btn').addEventListener('click', e => {
+            this._onRightClick(e);
+        });
         el.querySelector('input').addEventListener('change', e => this._onFilesSelected(e));
         el.addEventListener('drop', e => this._onDrop(e));
         el.addEventListener('dragend', e => this._onDragEnd(e));
@@ -155,7 +148,7 @@ class PeerUI {
         if (progress > 0) {
             this.$el.setAttribute('transfer', '1');
         }
-        this.$progress.querySelector(".progress-line").style.width=`${progress*100}%`;
+        this.$progress.querySelector(".progress-line").style.width = `${progress * 100}%`;
         if (progress >= 1) {
             this.setProgress(0);
             this.$el.removeAttribute('transfer');
@@ -514,15 +507,15 @@ class WebShareTargetUI {
 
 
 class Snapdrop {
-    constructor() {
+    constructor(username) {
         const server = new ServerConnection();
         const peers = new PeersManager(server);
         const peersUI = new PeersUI();
-        // const peerUI = new PeerUI({id:"asdf1",name:{displayName:"asdfasdf",deviceName:"android"}});
+        // const peerUI = new PeerUI({ name: { displayName: "asdfasdf", deviceName: "android" } });
         // $$('x-peers').appendChild(peerUI.$el);
-        // const peerUI1 = new PeerUI({id:"asdf2",name:{displayName:"asdfasdf1",deviceName:"android"}});
+        // const peerUI1 = new PeerUI({ id: "asdf2", name: { displayName: "asdfasdf1", deviceName: "android" } });
         // $$('x-peers').appendChild(peerUI1.$el);
-        // const peerUI2 = new PeerUI({id:"asdf3",name:{displayName:"asdfasdf2",deviceName:"android"}});
+        // const peerUI2 = new PeerUI({ id: "asdf3", name: { displayName: "asdfasdf2", deviceName: "android" } });
         // $$('x-peers').appendChild(peerUI2.$el);
         Events.on('load', e => {
             const receiveDialog = new ReceiveDialog();
@@ -535,13 +528,49 @@ class Snapdrop {
         });
     }
 }
-const snapdrop = new Snapdrop();
 
+window.onload = function(){
+    let username = window.localStorage.getItem("chatUserName");
+    if(!username){
+        document.querySelector("#edit-name-box").setAttribute('show', 1);
+    }else{
+        const snapdrop = new Snapdrop();
+    }
+    document.querySelector("#confirm-btn").addEventListener("click", e => {
+        let userName = document.querySelector("#userName").innerHTML;
+        if(userName){
+            console.log(userName);
+            window.localStorage.setItem("chatUserName", userName);
+            document.querySelector("#edit-name-box").removeAttribute('show');
+            const snapdrop = new Snapdrop();
+        }
+    })
+}
 
 Notifications.PERMISSION_ERROR = `
 Notifications permission has been blocked
 as the user has dismissed the permission prompt several times.
 This can be reset in Page Info
 which can be accessed by clicking the lock icon next to the URL.`;
+
+function getParents(el, parentSelector /* optional */) {
+    // console.log(el);
+    // If no parentSelector defined will bubble up all the way to *document*
+    if (parentSelector === undefined) {
+        parentSelector = document;
+    }
+
+    var parents = [];
+    var p = el.parentNode;
+
+    while (p !== parentSelector) {
+
+        var o = p;
+        // parents.push(o);
+        p = o.parentNode;
+    }
+    parents.push(parentSelector);
+    return parents;
+}
 
 

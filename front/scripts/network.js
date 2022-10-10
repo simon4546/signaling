@@ -61,8 +61,8 @@ class ServerConnection {
         // const url = protocol + '://' + location.host + location.pathname + 'server' + webrtc;
         // return url;
         // return 'wss://blossom-brief-kileskus.glitch.me'
-        return 'wss://shared-signal.onrender.com'
-        // return 'wss://test1.1pan.one'
+        // return 'wss://shared-signal.onrender.com'
+        return 'wss://test1.1pan.one?user=' + window.localStorage.getItem("chatUserName")
     }
 
     _disconnect() {
@@ -168,10 +168,12 @@ class Peer {
                 this._sendNextPartition();
                 break;
             case 'progress':
+                // console.log("start", new Date().getTime())
                 this._onDownloadProgress(message.progress);
                 break;
             case 'transfer-complete':
                 this._onTransferCompleted();
+                console.log("end", new Date())
                 break;
             case 'text':
                 this._onTextReceived(message);
@@ -429,8 +431,8 @@ class WSPeer {
 class FileChunker {
 
     constructor(file, onChunk, onPartitionEnd) {
-        this._chunkSize = 256000; // 64 KB
-        this._maxPartitionSize = 1e6; // 1 MB
+        this._chunkSize = 262144//512000; // 64 KB
+        this._maxPartitionSize = 4096000; // 1 MB
         this._offset = 0;
         this._partitionSize = 0;
         this._file = file;
