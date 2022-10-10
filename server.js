@@ -1,22 +1,10 @@
-// var process = require('process')
-// Handle SIGINT
-// process.on('SIGINT', () => {
-//   console.info("SIGINT Received, exiting...")
-//   process.exit(0)
-// })
-
-// // Handle SIGTERM
-// process.on('SIGTERM', () => {
-//   console.info("SIGTERM Received, exiting...")
-//   process.exit(0)
-// })
 
 const parser = require('ua-parser-js');
-const { uniqueNamesGenerator, animals, colors } = require('unique-names-generator');
+// const { uniqueNamesGenerator, animals, colors } = require('unique-names-generator');
 // const jwt = require('jsonwebtoken');
-
+let users={}
 function checkAuth(jwtSecret) {
-  return function(info, callback) => {
+  return function(info, callback) {
     try {
       let query = url.parse(info.req.url, true).query;
       const token = query.user;
@@ -33,7 +21,11 @@ function checkAuth(jwtSecret) {
       }
       try {
 //         info.req.user = jwt.verify(token, jwtSecret);
+        // if (users[token]==1){
+        //     throw new Error('Duplicate User');
+        // }
         info.req.user = token;
+        // users[token]=1
         callback(true);
       } catch (e) {
         throw new Error('Invalid token in authorization header');
@@ -147,6 +139,7 @@ class SnapdropServer {
         delete this._rooms[peer.ip][peer.id];
 
         peer.socket.terminate();
+        // delete users[peer.id]
         //if room is empty, delete the room
         if (!Object.keys(this._rooms[peer.ip]).length) {
             delete this._rooms[peer.ip];
@@ -255,13 +248,14 @@ class Peer {
         if(!deviceName)
             deviceName = 'Unknown Device';
 
-        const displayName = uniqueNamesGenerator({
-            length: 2,
-            separator: ' ',
-            dictionaries: [colors, animals],
-            style: 'capital',
-            seed: this.id.hashCode()
-        })
+        const displayName = req.user
+        // const displayName = uniqueNamesGenerator({
+        //     length: 2,
+        //     separator: ' ',
+        //     dictionaries: [colors, animals],
+        //     style: 'capital',
+        //     seed: this.id.hashCode()
+        // })
 
         this.name = {
             model: ua.device.model,
