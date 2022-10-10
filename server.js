@@ -1,8 +1,8 @@
-
+const url         = require('url')
 const parser = require('ua-parser-js');
 // const { uniqueNamesGenerator, animals, colors } = require('unique-names-generator');
 // const jwt = require('jsonwebtoken');
-let users={}
+// let users={}
 function checkAuth(jwtSecret) {
   return function(info, callback) {
     try {
@@ -246,7 +246,7 @@ class Peer {
         }
 
         if(!deviceName)
-            deviceName = 'Unknown Device';
+            deviceName = '未知设备';
 
         const displayName = req.user
         // const displayName = uniqueNamesGenerator({
