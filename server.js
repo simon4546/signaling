@@ -21,11 +21,7 @@ function checkAuth(jwtSecret) {
       }
       try {
 //         info.req.user = jwt.verify(token, jwtSecret);
-        // if (users[token]==1){
-        //     throw new Error('Duplicate User');
-        // }
         info.req.user = token;
-        // users[token]=1
         callback(true);
       } catch (e) {
         throw new Error('Invalid token in authorization header');
@@ -107,7 +103,13 @@ class SnapdropServer {
         if (!this._rooms[peer.ip]) {
             this._rooms[peer.ip] = {};
         }
-
+        // remove last user with same name
+        for (const otherPeerId in this._rooms[peer.ip]) {
+            const otherPeer = this._rooms[peer.ip][otherPeerId];
+            if(otherPeer.name.displayName==peer.name.displayName){
+                this._leaveRoom(otherPeer)
+            }
+        }
         // notify all other peers
         for (const otherPeerId in this._rooms[peer.ip]) {
             const otherPeer = this._rooms[peer.ip][otherPeerId];
@@ -272,6 +274,7 @@ class Peer {
         return {
             id: this.id,
             name: this.name,
+            ip: this.ip,
             rtcSupported: this.rtcSupported
         }
     }
